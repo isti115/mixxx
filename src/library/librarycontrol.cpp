@@ -598,11 +598,10 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
     if (m_pLibraryWidget) {
         m_pSelectedTrackTitle->set(32);
         disconnect(m_pLibraryWidget, nullptr, this, nullptr);
-        WTrackTableView* pTrackTableView = m_pLibraryWidget->getCurrentTrackTableView();
-        connect(pTrackTableView,
-                &WTrackTableView::trackSelected,
-                this,
-                &LibraryControl::trackSelected);
+        /*connect(pTrackTableView,*/
+        /*        &WTrackTableView::trackSelected,*/
+        /*        this,*/
+        /*        &LibraryControl::trackSelected);*/
 
     }
     m_pLibraryWidget = pLibraryWidget;
@@ -610,6 +609,13 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
             &WLibrary::destroyed,
             this,
             &LibraryControl::libraryWidgetDeleted);
+
+    m_pSelectedTrackTitle->set(33);
+    WTrackTableView* pTrackTableView = m_pLibraryWidget->getCurrentTrackTableView();
+    connect(pTrackTableView,
+            &WTrackTableView::trackSelected,
+            this,
+            &LibraryControl::trackSelected);
 }
 
 void LibraryControl::trackSelected(TrackPointer pTrack) {
