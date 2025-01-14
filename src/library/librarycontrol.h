@@ -179,7 +179,8 @@ class LibraryControl : public QObject {
     std::unique_ptr<ControlObject> m_pAutoDjAddReplace;
 
     // Selected track info
-    std::unique_ptr<ControlEncoder> m_pSelectedTrackTitle;
+    std::unique_ptr<ControlEncoder> m_pSelectedTrackTitleHead;
+    std::unique_ptr<ControlEncoder> m_pSelectedTrackTitleTail;
 
     // Controls to sort the track view
     std::unique_ptr<ControlEncoder> m_pSortColumn;

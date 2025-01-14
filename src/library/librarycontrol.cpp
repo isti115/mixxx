@@ -310,8 +310,8 @@ LibraryControl::LibraryControl(Library* pLibrary)
     }
 
     // Selected track info
-    m_pSelectedTrackTitle = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title"));
-    m_pSelectedTrackTitle->set(115);
+    m_pSelectedTrackTitleHead = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title_head"));
+    m_pSelectedTrackTitleTail = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title_tail"));
 
     // Sort controls
     m_pSortColumn = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "sort_column"));
@@ -594,9 +594,7 @@ void LibraryControl::bindSidebarWidget(WLibrarySidebar* pSidebarWidget) {
 
 void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFilter* pKeyboard) {
     Q_UNUSED(pKeyboard);
-    m_pSelectedTrackTitle->set(31);
     if (m_pLibraryWidget) {
-        m_pSelectedTrackTitle->set(32);
         disconnect(m_pLibraryWidget, nullptr, this, nullptr);
         /*connect(pTrackTableView,*/
         /*        &WTrackTableView::trackSelected,*/
@@ -610,7 +608,6 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
             this,
             &LibraryControl::libraryWidgetDeleted);
 
-    m_pSelectedTrackTitle->set(33);
     WTrackTableView* pTrackTableView = m_pLibraryWidget->getCurrentTrackTableView();
     connect(pTrackTableView,
             &WTrackTableView::trackSelected,
@@ -627,18 +624,21 @@ double eightBytesToDouble(uint8_t bytes[8]) {
 void LibraryControl::trackSelected(TrackPointer pTrack) {
     if (pTrack) {
         QString title = pTrack->getTitleInfo();
-        uint8_t bytes[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-        for (int i = 0; i < 8 && i < title.size(); i++) {
-            bytes[i] = title.at(i).cell();
-        }
-        m_pSelectedTrackTitle->set(eightBytesToDouble(bytes));
 
-        // std::cout << "The double value is: " << eightBytesToDouble(bytes) << std::endl;
-        // if (!title.isEmpty()) {
-        //     m_pSelectedTrackTitle->set(title.at(0).unicode());
-        // }
+        // TODO: Maybe collect into a single array and pass slices when casting
+        uint8_t head[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+        uint8_t tail[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+
+        for (int i = 0; i < 8 && i < title.size(); i++) {
+            head[i] = title.at(i).cell();
+        }
+        for (int i = 0; i < 8 && i + 8 < title.size(); i++) {
+            tail[i] = title.at(i + 8).cell();
+        }
+
+        m_pSelectedTrackTitleHead->set(eightBytesToDouble(head));
+        m_pSelectedTrackTitleTail->set(eightBytesToDouble(tail));
     }
-    /*m_pSelectedTrackTitle->set(64);*/
 }
 
 void LibraryControl::bindSearchboxWidget(WSearchLineEdit* pSearchbox) {
