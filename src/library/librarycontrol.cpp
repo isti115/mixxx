@@ -619,7 +619,13 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
 }
 
 void LibraryControl::trackSelected(TrackPointer pTrack) {
-    m_pSelectedTrackTitle->set(64);
+    if (pTrack) {
+        QString title = pTrack->getTitleInfo();
+        if (!title.isEmpty()) {
+            m_pSelectedTrackTitle->set(title.at(0).unicode());
+        }
+    }
+    /*m_pSelectedTrackTitle->set(64);*/
 }
 
 void LibraryControl::bindSearchboxWidget(WSearchLineEdit* pSearchbox) {
