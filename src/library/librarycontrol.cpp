@@ -311,6 +311,7 @@ LibraryControl::LibraryControl(Library* pLibrary)
 
     // Selected track info
     m_pSelectedTrackTitle = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title"));
+    m_pSelectedTrackTitle->set(115);
 
     // Sort controls
     m_pSortColumn = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "sort_column"));
@@ -593,7 +594,9 @@ void LibraryControl::bindSidebarWidget(WLibrarySidebar* pSidebarWidget) {
 
 void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFilter* pKeyboard) {
     Q_UNUSED(pKeyboard);
+    m_pSelectedTrackTitle->set(31);
     if (m_pLibraryWidget) {
+        m_pSelectedTrackTitle->set(32);
         disconnect(m_pLibraryWidget, nullptr, this, nullptr);
         WTrackTableView* pTrackTableView = m_pLibraryWidget->getCurrentTrackTableView();
         connect(pTrackTableView,
