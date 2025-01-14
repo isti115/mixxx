@@ -309,6 +309,9 @@ LibraryControl::LibraryControl(Library* pLibrary)
                 &LibraryControl::slotAutoDjAddReplace);
     }
 
+    // Selected track info
+    m_pSelectedTrackTitle = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title"));
+
     // Sort controls
     m_pSortColumn = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "sort_column"));
     m_pSortOrder = std::make_unique<ControlPushButton>(ConfigKey("[Library]", "sort_order"));
@@ -592,12 +595,22 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
     Q_UNUSED(pKeyboard);
     if (m_pLibraryWidget) {
         disconnect(m_pLibraryWidget, nullptr, this, nullptr);
+        WTrackTableView* pTrackTableView = m_pLibraryWidget->getCurrentTrackTableView();
+        connect(pTrackTableView,
+                &WTrackTableView::trackSelected,
+                this,
+                &LibraryControl::trackSelected);
+
     }
     m_pLibraryWidget = pLibraryWidget;
     connect(m_pLibraryWidget,
             &WLibrary::destroyed,
             this,
             &LibraryControl::libraryWidgetDeleted);
+}
+
+void LibraryControl::trackSelected(TrackPointer pTrack) {
+    m_pSelectedTrackTitle->set(64);
 }
 
 void LibraryControl::bindSearchboxWidget(WSearchLineEdit* pSearchbox) {

@@ -56,6 +56,8 @@ class LibraryControl : public QObject {
     virtual ~LibraryControl();
 
     void bindLibraryWidget(WLibrary* pLibrary, KeyboardEventFilter* pKeyboard);
+    void trackSelected(TrackPointer pTrack);
+
     void bindSidebarWidget(WLibrarySidebar* pLibrarySidebar);
     void bindSearchboxWidget(WSearchLineEdit* pSearchbox);
     // Give the keyboard focus to one of the library widgets
@@ -175,6 +177,9 @@ class LibraryControl : public QObject {
     std::unique_ptr<ControlObject> m_pAutoDjAddTop;
     std::unique_ptr<ControlObject> m_pAutoDjAddBottom;
     std::unique_ptr<ControlObject> m_pAutoDjAddReplace;
+
+    // Selected track info
+    std::unique_ptr<ControlEncoder> m_pSelectedTrackTitle;
 
     // Controls to sort the track view
     std::unique_ptr<ControlEncoder> m_pSortColumn;
