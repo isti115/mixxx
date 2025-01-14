@@ -100,6 +100,12 @@ BaseTrackPlayerImpl::BaseTrackPlayerImpl(
     m_pDuration = std::make_unique<ControlObject>(
         ConfigKey(getGroup(), "duration"));
 
+    // Track title of the current track
+    m_pTrackTitleHead = std::make_unique<ControlObject>(
+            ConfigKey(getGroup(), "track_title_head"));
+    m_pTrackTitleTail = std::make_unique<ControlObject>(
+            ConfigKey(getGroup(), "track_title_tail"));
+
     // Track color of the current track
     m_pTrackColor = std::make_unique<ControlObject>(
             ConfigKey(getGroup(), "track_color"));
@@ -621,6 +627,12 @@ void BaseTrackPlayerImpl::slotLoadFailed(TrackPointer pTrack, const QString& rea
     m_pPrevFailedTrackId = TrackId();
 }
 
+double eightBytesToDouble2(uint8_t bytes[8]) {
+    double value;
+    memcpy(&value, bytes, sizeof(value));
+    return value;
+}
+
 void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
                                           TrackPointer pOldTrack) {
     //qDebug() << "BaseTrackPlayerImpl::slotTrackLoaded" << pNewTrack.get() << pOldTrack.get();
@@ -650,12 +662,31 @@ void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
         // before handing them out to application code.
         // TODO(XXX): Don't hesitate to delete the preceding NOTE if you think
         // that it is not needed anymore.
+        
+        if (m_pLoadedTrack) {
+            QString title = m_pLoadedTrack->getTitleInfo();
+
+            // TODO: Maybe collect into a single array and pass slices when casting
+            uint8_t head[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+            uint8_t tail[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+
+            for (int i = 0; i < 8 && i < title.size(); i++) {
+                head[i] = title.at(i).cell();
+            }
+            for (int i = 0; i < 8 && i + 8 < title.size(); i++) {
+                tail[i] = title.at(i + 8).cell();
+            }
+
+            m_pTrackTitleHead->set(eightBytesToDouble2(head));
+            m_pTrackTitleTail->set(eightBytesToDouble2(tail));
+        }
 
         // Update the BPM and duration values that are stored in ControlObjects
         m_pDuration->set(m_pLoadedTrack->getDuration());
         m_pFileBPM->set(m_pLoadedTrack->getBpm());
         m_pKey->set(m_pLoadedTrack->getKey());
         slotSetTrackColor(m_pLoadedTrack->getColor());
+        // slotSetTrackTitle(m_pLoadedTrack->getTitle());
 
         if(m_pConfig->getValue(
                 ConfigKey("[Mixer Profile]", "EqAutoReset"), false)) {
