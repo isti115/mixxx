@@ -618,12 +618,25 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
             &LibraryControl::trackSelected);
 }
 
+double eightBytesToDouble(uint8_t bytes[8]) {
+    double value;
+    memcpy(&value, bytes, sizeof(value));
+    return value;
+}
+
 void LibraryControl::trackSelected(TrackPointer pTrack) {
     if (pTrack) {
         QString title = pTrack->getTitleInfo();
-        if (!title.isEmpty()) {
-            m_pSelectedTrackTitle->set(title.at(0).unicode());
+        uint8_t bytes[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+        for (int i = 0; i < 8 && i < title.size(); i++) {
+            bytes[i] = title.at(i).cell();
         }
+        m_pSelectedTrackTitle->set(eightBytesToDouble(bytes));
+
+        // std::cout << "The double value is: " << eightBytesToDouble(bytes) << std::endl;
+        // if (!title.isEmpty()) {
+        //     m_pSelectedTrackTitle->set(title.at(0).unicode());
+        // }
     }
     /*m_pSelectedTrackTitle->set(64);*/
 }
