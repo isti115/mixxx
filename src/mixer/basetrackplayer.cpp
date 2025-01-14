@@ -100,6 +100,16 @@ BaseTrackPlayerImpl::BaseTrackPlayerImpl(
     m_pDuration = std::make_unique<ControlObject>(
         ConfigKey(getGroup(), "duration"));
 
+    // Metadata of the current track
+    m_pTrackTitleHead = std::make_unique<ControlObject>(
+            ConfigKey(getGroup(), "track_title_head"));
+    m_pTrackTitleTail = std::make_unique<ControlObject>(
+            ConfigKey(getGroup(), "track_title_tail"));
+    m_pTrackArtistHead = std::make_unique<ControlObject>(
+            ConfigKey(getGroup(), "track_artist_head"));
+    m_pTrackArtistTail = std::make_unique<ControlObject>(
+            ConfigKey(getGroup(), "track_artist_tail"));
+
     // Track color of the current track
     m_pTrackColor = std::make_unique<ControlObject>(
             ConfigKey(getGroup(), "track_color"));
@@ -648,6 +658,26 @@ void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
         // before handing them out to application code.
         // TODO(XXX): Don't hesitate to delete the preceding NOTE if you think
         // that it is not needed anymore.
+
+        if (m_pLoadedTrack) {
+            QString title = m_pLoadedTrack->getTitleInfo();
+            uint8_t titleHeadTail[16] = {};
+            for (int i = 0; i < 16 && i < title.size(); i++) {
+                titleHeadTail[i] = title.at(i).cell();
+            }
+
+            m_pTrackTitleHead->set(*reinterpret_cast<double*>(titleHeadTail));
+            m_pTrackTitleTail->set(*reinterpret_cast<double*>(titleHeadTail + 8));
+
+            QString artist = m_pLoadedTrack->getArtist();
+            uint8_t artistHeadTail[16] = {};
+            for (int i = 0; i < 16 && i < artist.size(); i++) {
+                artistHeadTail[i] = artist.at(i).cell();
+            }
+
+            m_pTrackArtistHead->set(*reinterpret_cast<double*>(artistHeadTail));
+            m_pTrackArtistTail->set(*reinterpret_cast<double*>(artistHeadTail + 8));
+        }
 
         // Update the BPM and duration values that are stored in ControlObjects
         m_pDuration->set(m_pLoadedTrack->getDuration());

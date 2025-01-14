@@ -182,6 +182,12 @@ class BaseTrackPlayerImpl : public BaseTrackPlayer {
     std::unique_ptr<ControlObject> m_pLoadTrackFromDeck;
     std::unique_ptr<ControlObject> m_pLoadTrackFromSampler;
 
+    // Track title control
+    std::unique_ptr<ControlObject> m_pTrackTitleHead;
+    std::unique_ptr<ControlObject> m_pTrackTitleTail;
+    std::unique_ptr<ControlObject> m_pTrackArtistHead;
+    std::unique_ptr<ControlObject> m_pTrackArtistTail;
+
     // Track color control
     std::unique_ptr<ControlObject> m_pTrackColor;
     std::unique_ptr<ControlPushButton> m_pTrackColorPrev;

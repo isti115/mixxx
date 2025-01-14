@@ -309,6 +309,12 @@ LibraryControl::LibraryControl(Library* pLibrary)
                 &LibraryControl::slotAutoDjAddReplace);
     }
 
+    // Selected track info
+    m_pSelectedTrackTitleHead = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title_head"));
+    m_pSelectedTrackTitleTail = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title_tail"));
+    m_pSelectedTrackArtistHead = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_artist_head"));
+    m_pSelectedTrackArtistTail = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_artist_tail"));
+
     // Sort controls
     m_pSortColumn = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "sort_column"));
     m_pSortOrder = std::make_unique<ControlPushButton>(ConfigKey("[Library]", "sort_order"));
@@ -598,6 +604,34 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
             &WLibrary::destroyed,
             this,
             &LibraryControl::libraryWidgetDeleted);
+
+    WTrackTableView* pTrackTableView = m_pLibraryWidget->getCurrentTrackTableView();
+    connect(pTrackTableView,
+            &WTrackTableView::trackSelected,
+            this,
+            &LibraryControl::trackSelected);
+}
+
+void LibraryControl::trackSelected(TrackPointer pTrack) {
+    if (pTrack) {
+        QString title = pTrack->getTitleInfo();
+        uint8_t titleHeadTail[16] = {};
+        for (int i = 0; i < 16 && i < title.size(); i++) {
+            titleHeadTail[i] = title.at(i).cell();
+        }
+
+        m_pSelectedTrackTitleHead->set(*reinterpret_cast<double*>(titleHeadTail));
+        m_pSelectedTrackTitleTail->set(*reinterpret_cast<double*>(titleHeadTail + 8));
+
+        QString artist = pTrack->getArtist();
+        uint8_t artistHeadTail[16] = {};
+        for (int i = 0; i < 16 && i < artist.size(); i++) {
+            artistHeadTail[i] = artist.at(i).cell();
+        }
+
+        m_pSelectedTrackArtistHead->set(*reinterpret_cast<double*>(artistHeadTail));
+        m_pSelectedTrackArtistTail->set(*reinterpret_cast<double*>(artistHeadTail + 8));
+    }
 }
 
 void LibraryControl::bindSearchboxWidget(WSearchLineEdit* pSearchbox) {
