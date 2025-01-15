@@ -627,12 +627,6 @@ void BaseTrackPlayerImpl::slotLoadFailed(TrackPointer pTrack, const QString& rea
     m_pPrevFailedTrackId = TrackId();
 }
 
-double eightBytesToDouble2(uint8_t bytes[8]) {
-    double value;
-    memcpy(&value, bytes, sizeof(value));
-    return value;
-}
-
 void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
                                           TrackPointer pOldTrack) {
     //qDebug() << "BaseTrackPlayerImpl::slotTrackLoaded" << pNewTrack.get() << pOldTrack.get();
@@ -665,20 +659,14 @@ void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
         
         if (m_pLoadedTrack) {
             QString title = m_pLoadedTrack->getTitleInfo();
+            uint8_t titleHeadTail[16] = {};
 
-            // TODO: Maybe collect into a single array and pass slices when casting
-            uint8_t head[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-            uint8_t tail[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-
-            for (int i = 0; i < 8 && i < title.size(); i++) {
-                head[i] = title.at(i).cell();
-            }
-            for (int i = 0; i < 8 && i + 8 < title.size(); i++) {
-                tail[i] = title.at(i + 8).cell();
+            for (int i = 0; i < 16 && i < title.size(); i++) {
+                titleHeadTail[i] = title.at(i).cell();
             }
 
-            m_pTrackTitleHead->set(eightBytesToDouble2(head));
-            m_pTrackTitleTail->set(eightBytesToDouble2(tail));
+            m_pTrackTitleHead->set(*reinterpret_cast<double*>(titleHeadTail));
+            m_pTrackTitleTail->set(*reinterpret_cast<double*>(titleHeadTail + 8));
         }
 
         // Update the BPM and duration values that are stored in ControlObjects
