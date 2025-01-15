@@ -181,6 +181,8 @@ class LibraryControl : public QObject {
     // Selected track info
     std::unique_ptr<ControlEncoder> m_pSelectedTrackTitleHead;
     std::unique_ptr<ControlEncoder> m_pSelectedTrackTitleTail;
+    std::unique_ptr<ControlEncoder> m_pSelectedTrackArtistHead;
+    std::unique_ptr<ControlEncoder> m_pSelectedTrackArtistTail;
 
     // Controls to sort the track view
     std::unique_ptr<ControlEncoder> m_pSortColumn;

@@ -312,6 +312,8 @@ LibraryControl::LibraryControl(Library* pLibrary)
     // Selected track info
     m_pSelectedTrackTitleHead = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title_head"));
     m_pSelectedTrackTitleTail = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_title_tail"));
+    m_pSelectedTrackArtistHead = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_artist_head"));
+    m_pSelectedTrackArtistTail = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "selected_track_artist_tail"));
 
     // Sort controls
     m_pSortColumn = std::make_unique<ControlEncoder>(ConfigKey("[Library]", "sort_column"));
@@ -615,29 +617,25 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
             &LibraryControl::trackSelected);
 }
 
-double eightBytesToDouble(uint8_t bytes[8]) {
-    double value;
-    memcpy(&value, bytes, sizeof(value));
-    return value;
-}
-
 void LibraryControl::trackSelected(TrackPointer pTrack) {
     if (pTrack) {
         QString title = pTrack->getTitleInfo();
-
-        // TODO: Maybe collect into a single array and pass slices when casting
-        uint8_t head[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-        uint8_t tail[8] = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-
-        for (int i = 0; i < 8 && i < title.size(); i++) {
-            head[i] = title.at(i).cell();
-        }
-        for (int i = 0; i < 8 && i + 8 < title.size(); i++) {
-            tail[i] = title.at(i + 8).cell();
+        uint8_t titleHeadTail[16] = {};
+        for (int i = 0; i < 16 && i < title.size(); i++) {
+            titleHeadTail[i] = title.at(i).cell();
         }
 
-        m_pSelectedTrackTitleHead->set(eightBytesToDouble(head));
-        m_pSelectedTrackTitleTail->set(eightBytesToDouble(tail));
+        m_pSelectedTrackTitleHead->set(*reinterpret_cast<double*>(titleHeadTail));
+        m_pSelectedTrackTitleTail->set(*reinterpret_cast<double*>(titleHeadTail + 8));
+
+        QString artist = pTrack->getArtist();
+        uint8_t artistHeadTail[16] = {};
+        for (int i = 0; i < 16 && i < artist.size(); i++) {
+            artistHeadTail[i] = artist.at(i).cell();
+        }
+
+        m_pSelectedTrackArtistHead->set(*reinterpret_cast<double*>(artistHeadTail));
+        m_pSelectedTrackArtistTail->set(*reinterpret_cast<double*>(artistHeadTail + 8));
     }
 }
 
