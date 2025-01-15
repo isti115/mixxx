@@ -173,8 +173,6 @@ EngineBuffer::EngineBuffer(const QString& group,
     m_pTrackSamples = new ControlObject(ConfigKey(m_group, "track_samples"));
     m_pTrackSampleRate = new ControlObject(ConfigKey(m_group, "track_samplerate"));
 
-    m_pTrackTitle = new ControlObject(ConfigKey(m_group, "track_title"));
-
     m_pKeylock = new ControlPushButton(ConfigKey(m_group, "keylock"), true);
     m_pKeylock->setButtonMode(mixxx::control::ButtonMode::Toggle);
 
@@ -313,8 +311,6 @@ EngineBuffer::~EngineBuffer() {
     delete m_pTrackLoaded;
     delete m_pTrackSamples;
     delete m_pTrackSampleRate;
-
-    delete m_pTrackTitle;
 
     delete m_pScaleLinear;
     delete m_pScaleST;
@@ -565,9 +561,6 @@ void EngineBuffer::slotTrackLoaded(TrackPointer pTrack,
 
     m_pTrackSamples->set(trackNumFrame.toEngineSamplePos());
     m_pTrackSampleRate->set(trackSampleRate.toDouble());
-
-    m_pTrackTitle->set(64);
-
     m_pTrackLoaded->forceSet(1);
 
     // Reset slip mode
@@ -637,9 +630,6 @@ void EngineBuffer::ejectTrack() {
     m_pCurrentTrack.reset();
     setTrackEndPosition(mixxx::audio::kInvalidFramePos);
     m_pTrackSampleRate->set(0);
-
-    m_pTrackTitle->set(0);
-
     m_pTrackLoaded->forceSet(0);
 
     m_playButton->set(0.0);

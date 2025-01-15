@@ -660,7 +660,7 @@ void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
         // before handing them out to application code.
         // TODO(XXX): Don't hesitate to delete the preceding NOTE if you think
         // that it is not needed anymore.
-        
+
         if (m_pLoadedTrack) {
             QString title = m_pLoadedTrack->getTitleInfo();
             uint8_t titleHeadTail[16] = {};
@@ -686,7 +686,6 @@ void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
         m_pFileBPM->set(m_pLoadedTrack->getBpm());
         m_pKey->set(m_pLoadedTrack->getKey());
         slotSetTrackColor(m_pLoadedTrack->getColor());
-        // slotSetTrackTitle(m_pLoadedTrack->getTitle());
 
         if(m_pConfig->getValue(
                 ConfigKey("[Mixer Profile]", "EqAutoReset"), false)) {

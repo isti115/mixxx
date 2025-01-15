@@ -598,11 +598,6 @@ void LibraryControl::bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFi
     Q_UNUSED(pKeyboard);
     if (m_pLibraryWidget) {
         disconnect(m_pLibraryWidget, nullptr, this, nullptr);
-        /*connect(pTrackTableView,*/
-        /*        &WTrackTableView::trackSelected,*/
-        /*        this,*/
-        /*        &LibraryControl::trackSelected);*/
-
     }
     m_pLibraryWidget = pLibraryWidget;
     connect(m_pLibraryWidget,
